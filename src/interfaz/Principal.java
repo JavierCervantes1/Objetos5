@@ -6,6 +6,9 @@
 package interfaz;
 
 import clases.*;
+import excepciones.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -217,21 +220,37 @@ public class Principal extends javax.swing.JFrame {
                 txtIdentificacion.selectAll();
                 sw = 0;
             }
+
+            try {
+                cuenta = Long.parseLong(txtCuenta.getText());
+                id = Long.parseLong(txtIdentificacion.getText());
+                c = new Cuenta(cuenta, id);
+            } catch (NoNegativoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+                txtCuenta.requestFocusInWindow();
+                sw = 0;
+            } catch (NoCeroException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+                sw = 0;
+            }
         }
         if (sw == 1) {
             cuenta = Long.parseLong(txtCuenta.getText());
             id = Long.parseLong(txtIdentificacion.getText());
-
+            try {
+                c = new Cuenta(cuenta, id);
+            } catch (NoNegativoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoCeroException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
             JOptionPane.showMessageDialog(this, "Cuenta creada exitosamente", "Informacion", 1);
-
-            c = new Cuenta(cuenta, id);
             cmdCrear.setEnabled(false);
             cmdIngresar.setEnabled(true);
             cmdRetirar.setEnabled(false);
             cmdActualizar.setEnabled(false);
             cmdMostrar.setEnabled(true);
         }
-
     }//GEN-LAST:event_cmdCrearActionPerformed
 
     private void cmdIngresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdIngresarActionPerformed
@@ -250,23 +269,39 @@ public class Principal extends javax.swing.JFrame {
                 txtIngresar.selectAll();
                 sw = 0;
             }
+            try {
+                c.ingresar(saldo);
+            } catch (NoNegativoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+                txtIngresar.requestFocusInWindow();
+                txtIngresar.selectAll();
+                sw = 0;
+            } catch (NoCeroException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+                txtIngresar.requestFocusInWindow();
+                txtIngresar.selectAll();
+                sw = 0;
+            }
         }
         if (sw == 1) {
             saldo = Double.parseDouble(txtIngresar.getText());
-            if (saldo <= -1) {
-                JOptionPane.showMessageDialog(this, "No puede ingresar un monto negativo", "Error", 2);
-                txtIngresar.requestFocusInWindow();
-                txtIngresar.selectAll();
-            } else {
+            try {
                 c.ingresar(saldo);
-                JOptionPane.showMessageDialog(this, "Saldo ingresado exitosamente", "Informacion", 1);
-                cmdCrear.setEnabled(false);
-                cmdIngresar.setEnabled(true);
-                cmdRetirar.setEnabled(true);
-                cmdActualizar.setEnabled(true);
-                cmdMostrar.setEnabled(true);
+            } catch (NoNegativoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+            } catch (NoCeroException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
             }
+            JOptionPane.showMessageDialog(this, "Saldo ingresado exitosamente", "Informacion", 1);
+            txtResultado.setText("" + c.mostrar());
+            cmdCrear.setEnabled(false);
+            cmdIngresar.setEnabled(true);
+            cmdRetirar.setEnabled(true);
+            cmdActualizar.setEnabled(true);
+            cmdMostrar.setEnabled(true);
+
         }
+
     }//GEN-LAST:event_cmdIngresarActionPerformed
 
     private void cmdRetirarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdRetirarActionPerformed
@@ -290,37 +325,41 @@ public class Principal extends javax.swing.JFrame {
                 txtRetirar.selectAll();
                 sw = 0;
             }
+            try {
+                c.retirar(saldo);
+            } catch (NoNegativoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+                txtRetirar.requestFocusInWindow();
+                txtRetirar.selectAll();
+                sw = 0;
+            } catch (MontoInsuficienteException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+                txtRetirar.requestFocusInWindow();
+                txtRetirar.selectAll();
+                sw = 0;
+            }
 
         }
         if (sw == 1) {
 
             saldo = Double.parseDouble(txtRetirar.getText());
 
-            if (saldo <= -1) {
-                JOptionPane.showMessageDialog(this, "No puede retirar un monto negativo", "Error", 2);
-                txtRetirar.requestFocusInWindow();
-                txtRetirar.selectAll();
-
-            } else {
+            try {
                 c.retirar(saldo);
-                if (c.getSaldo_actual() <= -1) {
-                    JOptionPane.showMessageDialog(this, "No tiene suficiente monto para retirar esta cantidad", "Error fatal", 2);
-                    cmdCrear.setEnabled(false);
-                    cmdIngresar.setEnabled(false);
-                    cmdRetirar.setEnabled(false);
-                    cmdActualizar.setEnabled(false);
-                    cmdMostrar.setEnabled(true);
-                    cmdLimpiar.setEnabled(false);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Saldo retirado exitosamente", "Informacion", 1);
-                    cmdCrear.setEnabled(false);
-                    cmdIngresar.setEnabled(true);
-                    cmdRetirar.setEnabled(true);
-                    cmdActualizar.setEnabled(true);
-                    cmdMostrar.setEnabled(true);
-                }
+            } catch (NoNegativoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+            } catch (MontoInsuficienteException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
             }
+            JOptionPane.showMessageDialog(this, "Saldo retirado exitosamente", "Informacion", 1);
+            txtResultado.setText("" + c.mostrar());
+            cmdCrear.setEnabled(false);
+            cmdIngresar.setEnabled(true);
+            cmdRetirar.setEnabled(true);
+            cmdActualizar.setEnabled(true);
+            cmdMostrar.setEnabled(true);
         }
+
     }//GEN-LAST:event_cmdRetirarActionPerformed
 
     private void cmdActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdActualizarActionPerformed
@@ -339,47 +378,43 @@ public class Principal extends javax.swing.JFrame {
                 txtIan.selectAll();
                 sw = 0;
             }
+            try {
+                c.actulizarSaldo(saldo);
+            } catch (NoNegativoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
+                txtIan.requestFocusInWindow();
+                txtIan.selectAll();
+                sw = 0;
+            }
         }
         if (sw == 1) {
             saldo = Double.parseDouble(txtIan.getText());
-            if (saldo <= -1) {
-                JOptionPane.showMessageDialog(this, "No puede ingresar interes anual negativo", "Error", 2);
-                txtIan.requestFocusInWindow();
-                txtIan.selectAll();
-            } else {
+
+            try {
                 c.actulizarSaldo(saldo);
-                JOptionPane.showMessageDialog(this, "Saldo actualizado exitosamente", "Informacion", 1);
-                cmdCrear.setEnabled(false);
-                cmdIngresar.setEnabled(true);
-                cmdRetirar.setEnabled(true);
-                cmdActualizar.setEnabled(true);
-                cmdMostrar.setEnabled(true);
+            } catch (NoNegativoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", 2);
             }
+            JOptionPane.showMessageDialog(this, "Saldo actualizado exitosamente", "Informacion", 1);
+            txtResultado.setText("" + c.mostrar());
+            cmdCrear.setEnabled(false);
+            cmdIngresar.setEnabled(true);
+            cmdRetirar.setEnabled(true);
+            cmdActualizar.setEnabled(true);
+            cmdMostrar.setEnabled(true);
         }
+
 
     }//GEN-LAST:event_cmdActualizarActionPerformed
 
     private void cmdMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdMostrarActionPerformed
         // TODO add your handling code here:
-        if (c.getSaldo_actual() <= -1) {
-            JOptionPane.showMessageDialog(this, "Error al intentar retirar saldo", "Error fatal", 2);
-            JOptionPane.showMessageDialog(this, "Por favor reinicie el proceso", "Aviso", 2);
-            txtCuenta.setText("");
-            txtIdentificacion.setText("");
-            txtIngresar.setText("");
-            txtRetirar.setText("");
-            txtIan.setText("");
-            txtResultado.setText("");
-            txtCuenta.requestFocusInWindow();
-            cmdCrear.setEnabled(true);
-            cmdIngresar.setEnabled(false);
-            cmdRetirar.setEnabled(false);
-            cmdActualizar.setEnabled(false);
-            cmdMostrar.setEnabled(false);
-        } else {
-            txtResultado.setText("" + c.mostrar());
 
-        }
+        txtResultado.setText("" + c.mostrar());
+        txtCuenta.setText("");
+        txtIdentificacion.setText("");
+        cmdMostrar.setEnabled(false);
+
     }//GEN-LAST:event_cmdMostrarActionPerformed
 
     private void cmdLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdLimpiarActionPerformed
